@@ -24,7 +24,15 @@ def L():
 ⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     """, style="bold magenta"))
-    console.print(Panel.fit("DDOS C2 BOTNET DIZ FLYZE ONLY BYPASS CLOUDFLARE", style="bold yellow", padding=(1,2)))
+console.print(
+    Panel.fit(
+        "DDOS C2 BOTNET DIZ FLYZE ONLY BYPASS CLOUDFLARE",
+        style="bold yellow",
+        padding=(1, 2),  
+        subtitle_align="center"  
+    ),
+    justify="center"  
+)
 
 def NU(user_input):
     if not re.match(r'^https?://', user_input):
@@ -69,7 +77,7 @@ def SR(info):
     console.print(Panel.fit(
         table,
         title="[bold yellow][ BOTNET C2 ]",
-        subtitle="[bold green][ C2 SUKSES ]",
+        subtitle="[bold yellow][ C2 SUKSES ]",
         style="bold white"
     ))
 
@@ -87,7 +95,7 @@ def main():
             return
         for i in range(100):
             progress.update(task, advance=1, description=f"[bold yellow][ STATUS ] : ({i+1}%)")
-            time.sleep(0.6)
+            time.sleep(2)
     L()
     SR(info)
 
