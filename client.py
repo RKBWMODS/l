@@ -1,9 +1,10 @@
 import requests
 
-API = "http://<IP_CLOUDSHELL>:<PORT>/set"
+api = input("MASUKAN API https://[api]:[port] : ")
+target = input("MASUKAN TARGET : ")
+durasi = int(input("MASUKAN DURASI : "))
+API_KEY = "kunciraasamu123"
 
-target = input("Target URL: ")
-time = input("Durasi (detik): ")
-
-res = requests.post(API, json={"target": target, "time": int(time)})
+headers = {"x-api-key": API_KEY}
+res = requests.post(f"{api}/set", json={"target": target, "time": durasi}, headers=headers)
 print("RESPON:", res.text)
