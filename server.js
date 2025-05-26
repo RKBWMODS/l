@@ -29,10 +29,10 @@ const L = () => {
 
 const N = async () => {
   try {
-    await ngrok.authtoken('2xclrXeyimoudAtLmDQu7DibbSJ_42dYjd7bccEoCS23svLnA');
     const url = await ngrok.connect({
       proto: 'http',
       addr: currentPort,
+      hostname: 'mighty-shepherd-externally.ngrok-free.app',
       region: 'ap'
     });
     
