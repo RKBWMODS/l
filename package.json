@@ -4,7 +4,7 @@
   "description": "C2-METHOD-BYPASS",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+  "start": "node --max-old-space-size=4096 server.js"
     "update": "npm install ngrok@latest axios express colors"
   },
   "dependencies": {
